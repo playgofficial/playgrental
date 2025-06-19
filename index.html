@@ -148,7 +148,6 @@
     </form>
   </div>
 
-  <!-- Hidden Form -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
   <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
     <input name="entry.1308462483" id="g_name" />
@@ -158,7 +157,6 @@
     <input name="entry.1889959117" id="g_duration" />
     <input type="submit" />
   </form>
-
   <script>
     function toggleCustomDuration() {
       const selected = document.getElementById("duration").value;
@@ -171,49 +169,72 @@
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const { latitude, longitude } = pos.coords;
-            document.getElementById("location").value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+            document.getElementById("location").value =
+              `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
           },
-          () => {
+          (error) => {
             document.getElementById("location").value = "Location access denied.";
+            console.warn("Geolocation error:", error.message);
           }
         );
+      } else {
+        document.getElementById("location").value = "Geolocation not supported.";
       }
     }
 
     function sendOTP() {
       const email = document.getElementById("email").value;
-      const btn = document.getElementById("otpBtn");
-      if (!email) return alert("Please enter your email.");
+      const otpBtn = document.getElementById("otpBtn");
 
-      btn.disabled = true;
-      btn.innerText = "OTP Sent (60s)";
-      let countdown = 60;
-      const interval = setInterval(() => {
-        countdown--;
-        btn.innerText = `OTP Sent (${countdown}s)`;
-        if (countdown === 0) {
-          clearInterval(interval);
-          btn.disabled = false;
-          btn.innerText = "Send OTP";
+      if (!email) return alert("Please enter your email first.");
+
+      otpBtn.disabled = true;
+      let seconds = 60;
+      otpBtn.innerText = `OTP Sent (${seconds}s)`;
+
+      const timer = setInterval(() => {
+        seconds--;
+        otpBtn.innerText = `OTP Sent (${seconds}s)`;
+        if (seconds === 0) {
+          clearInterval(timer);
+          otpBtn.disabled = false;
+          otpBtn.innerText = "Send OTP";
         }
       }, 1000);
 
-      fetch("https://playg-backend-qz6t.onrender.com/send-otp", {
+      fetch("https://playg-backend-qz6t.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       })
       .then(res => res.json())
       .then(data => alert(data.message))
-      .catch(() => alert("Failed to send OTP. Please try again."));
+      .catch(() => {
+        alert("Failed to send OTP. Please try again.");
+        clearInterval(timer);
+        otpBtn.disabled = false;
+        otpBtn.innerText = "Send OTP";
+      });
     }
 
     function submitToGoogleForm(event) {
       event.preventDefault();
+
       document.getElementById("g_name").value = document.getElementById("name").value;
       document.getElementById("g_email").value = document.getElementById("email").value;
       document.getElementById("g_phone").value = document.getElementById("phone").value;
 
       const eq1 = document.getElementById("equipment1").value;
       const eq2 = document.getElementById("equipment2").value;
-      document.getElementById("g_equipment").value = [eq1, eq2].filter(Boolean
+      document.getElementById("g_equipment").value = [eq1, eq2].filter(Boolean).join(", ");
+
+      const dur = document.getElementById("duration").value;
+      const custom = document.getElementById("customDuration").value;
+      document.getElementById("g_duration").value = dur === "custom" ? custom : dur;
+
+      document.getElementById("gform").submit();
+      alert("Submitted! Your rental request is on its way 🎯");
+    }
+  </script>
+</body>
+</html>
