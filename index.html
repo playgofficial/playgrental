@@ -148,6 +148,7 @@
     </form>
   </div>
 
+  <!-- Hidden form for Google Form -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
   <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
     <input name="entry.1308462483" id="g_name" />
@@ -202,7 +203,7 @@
         }
       }, 1000);
 
-      fetch("https://playg-backend-qz6t.onrender.com", {
+      fetch("https://playg-backend-qz6t.onrender.com/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
