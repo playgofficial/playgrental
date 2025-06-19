@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- Final updated PLAY-G index.html with Google Form integration -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -66,6 +66,22 @@
       text-align: left;
     }
 
+    .equipment-box {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .equipment-box label {
+      width: 48%;
+    }
+
+    .equipment-box input {
+      width: auto;
+      margin-right: 0.5rem;
+    }
+
     button {
       background-color: #fff;
       color: #e60023;
@@ -117,25 +133,12 @@
     <form onsubmit="submitToGoogleForm(event)">
       <input type="text" id="name" placeholder="Your Name" required />
 
-      <label for="equipment1">Equipment 1</label>
-      <select id="equipment1" required>
-        <option value="">-- Select --</option>
-        <option>Tennis Bat</option>
-        <option>Football</option>
-        <option>Leather Ball</option>
-        <option>Tennis Ball</option>
-        <option>Badminton Racket</option>
-      </select>
-
-      <label for="equipment2">Equipment 2</label>
-      <select id="equipment2">
-        <option value="">-- Select --</option>
-        <option>Tennis Bat</option>
-        <option>Football</option>
-        <option>Leather Ball</option>
-        <option>Tennis Ball</option>
-        <option>Badminton Racket</option>
-      </select>
+      <div class="equipment-box">
+        <label><input type="checkbox" name="equipment" value="Bat" />🏏 Bat</label>
+        <label><input type="checkbox" name="equipment" value="Ball" />⚽ Ball</label>
+        <label><input type="checkbox" name="equipment" value="Badminton" />🏸 Badminton</label>
+        <label><input type="checkbox" name="equipment" value="Football" />🥅 Football</label>
+      </div>
 
       <label for="duration">Select Rental Duration</label>
       <select id="duration" onchange="toggleCustomDuration()" required>
@@ -153,7 +156,6 @@
       <input type="tel" id="phone" placeholder="Phone (+91...)" required />
       <input type="email" id="email" placeholder="Email Address" required />
       <button type="button" id="otpBtn" onclick="sendOTP()">Send OTP</button>
-
       <input type="text" id="otp" placeholder="Enter OTP received via Email" required />
       <input type="text" id="location" placeholder="Auto-detected 📍" readonly />
       <div class="tooltip">Your data is safe and used only for rental purposes.</div>
@@ -164,12 +166,11 @@
 
   <iframe name="hidden_iframe" style="display:none;"></iframe>
   <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
-    <input name="entry.1782176706" id="g_name" />
-    <input name="entry.336447923" id="g_email" />
-    <input name="entry.316390838" id="g_phone" />
-    <input name="entry.1176328126" id="g_equipment" />
-    <input name="entry.1887718702" id="g_duration" />
-    <input name="entry.183706312" id="g_location" />
+    <input name="entry.1308462483" id="g_name" />
+    <input name="entry.957154645" id="g_email" />
+    <input name="entry.805067854" id="g_phone" />
+    <input name="entry.1163401001" id="g_equipment" />
+    <input name="entry.1889959117" id="g_duration" />
     <input type="submit" />
   </form>
 
@@ -217,13 +218,4 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       })
-      .then(response => response.json())
-      .then(data => alert(data.message))
-      .catch(() => alert("Failed to send OTP. Please try again."));
-    }
-
-    function submitToGoogleForm(event) {
-      event.preventDefault();
-      document.getElementById("g_name").value = document.getElementById("name").value;
-      document.getElementById("g_email").value = document.getElementById("email").value;
-      document.getElement[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/lzh-yi/Web-Fork-/tree/024b3e55587afdf9f05a677613a75f24e3d1803e/03-CSS%E8%BF%9B%E9%98%B6%2F04-%E5%A6%82%E4%BD%95%E8%AE%A9%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E5%B1%85%E4%B8%AD%EF%BC%9F.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
+      .then
