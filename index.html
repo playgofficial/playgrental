@@ -1,4 +1,4 @@
-<!-- Final updated PLAY-G index.html with Google Form integration -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -24,29 +24,32 @@
 
     header {
       padding: 2rem 1rem;
-      animation: fadeIn 1s ease-in;
     }
 
     header h1 {
       font-size: 2.5rem;
       margin: 0;
-      animation: bounceIn 1.2s ease-in-out;
     }
 
     .slogan {
       font-size: 1.5rem;
       margin-top: 0.5rem;
-      animation: typewriter 3s steps(30) 1 normal both;
       white-space: nowrap;
       overflow: hidden;
       border-right: 3px solid white;
+      animation: typewriter 3s steps(30) 1 normal both;
+    }
+
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
     }
 
     .form-container {
       max-width: 420px;
       margin: 2rem auto;
       padding: 2rem;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255,255,255,0.1);
       border-radius: 20px;
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
@@ -66,22 +69,6 @@
       text-align: left;
     }
 
-    .equipment-box {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .equipment-box label {
-      width: 48%;
-    }
-
-    .equipment-box input {
-      width: auto;
-      margin-right: 0.5rem;
-    }
-
     button {
       background-color: #fff;
       color: #e60023;
@@ -97,22 +84,6 @@
 
     button:hover:enabled {
       background-color: #ffe0e6;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes bounceIn {
-      0% { transform: scale(0.5); opacity: 0; }
-      60% { transform: scale(1.2); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes typewriter {
-      from { width: 0; }
-      to { width: 100%; }
     }
 
     .tooltip {
@@ -133,12 +104,25 @@
     <form onsubmit="submitToGoogleForm(event)">
       <input type="text" id="name" placeholder="Your Name" required />
 
-      <div class="equipment-box">
-        <label><input type="checkbox" name="equipment" value="Bat" />🏏 Bat</label>
-        <label><input type="checkbox" name="equipment" value="Ball" />⚽ Ball</label>
-        <label><input type="checkbox" name="equipment" value="Badminton" />🏸 Badminton</label>
-        <label><input type="checkbox" name="equipment" value="Football" />🥅 Football</label>
-      </div>
+      <label for="equipment1">Equipment 1</label>
+      <select id="equipment1" required>
+        <option value="">-- Select --</option>
+        <option>Tennis Bat</option>
+        <option>Football</option>
+        <option>Leather Ball</option>
+        <option>Tennis Ball</option>
+        <option>Badminton Racket</option>
+      </select>
+
+      <label for="equipment2">Equipment 2</label>
+      <select id="equipment2">
+        <option value="">-- Select --</option>
+        <option>Tennis Bat</option>
+        <option>Football</option>
+        <option>Leather Ball</option>
+        <option>Tennis Ball</option>
+        <option>Badminton Racket</option>
+      </select>
 
       <label for="duration">Select Rental Duration</label>
       <select id="duration" onchange="toggleCustomDuration()" required>
@@ -164,6 +148,7 @@
     </form>
   </div>
 
+  <!-- Hidden Form -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
   <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
     <input name="entry.1308462483" id="g_name" />
@@ -177,8 +162,8 @@
   <script>
     function toggleCustomDuration() {
       const selected = document.getElementById("duration").value;
-      const customField = document.getElementById("customDurationContainer");
-      customField.style.display = selected === "custom" ? "block" : "none";
+      document.getElementById("customDurationContainer").style.display =
+        selected === "custom" ? "block" : "none";
     }
 
     function getLocation() {
@@ -197,19 +182,19 @@
 
     function sendOTP() {
       const email = document.getElementById("email").value;
-      const otpBtn = document.getElementById("otpBtn");
+      const btn = document.getElementById("otpBtn");
       if (!email) return alert("Please enter your email.");
 
-      otpBtn.disabled = true;
-      otpBtn.innerText = "OTP Sent (60s)";
+      btn.disabled = true;
+      btn.innerText = "OTP Sent (60s)";
       let countdown = 60;
       const interval = setInterval(() => {
         countdown--;
-        otpBtn.innerText = `OTP Sent (${countdown}s)`;
+        btn.innerText = `OTP Sent (${countdown}s)`;
         if (countdown === 0) {
           clearInterval(interval);
-          otpBtn.disabled = false;
-          otpBtn.innerText = "Send OTP";
+          btn.disabled = false;
+          btn.innerText = "Send OTP";
         }
       }, 1000);
 
@@ -218,4 +203,17 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       })
-      .then
+      .then(res => res.json())
+      .then(data => alert(data.message))
+      .catch(() => alert("Failed to send OTP. Please try again."));
+    }
+
+    function submitToGoogleForm(event) {
+      event.preventDefault();
+      document.getElementById("g_name").value = document.getElementById("name").value;
+      document.getElementById("g_email").value = document.getElementById("email").value;
+      document.getElementById("g_phone").value = document.getElementById("phone").value;
+
+      const eq1 = document.getElementById("equipment1").value;
+      const eq2 = document.getElementById("equipment2").value;
+      document.getElementById("g_equipment").value = [eq1, eq2].filter(Boolean
