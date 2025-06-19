@@ -9,20 +9,31 @@
     body {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #ff6600, #e60023);
+      background: linear-gradient(270deg, #ff6600, #ff2e00, #e60023, #ff6600);
+      background-size: 600% 600%;
+      animation: bgPulse 12s ease infinite;
       overflow-x: hidden;
       color: white;
       text-align: center;
     }
+
+    @keyframes bgPulse {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     header {
       padding: 2rem 1rem;
       animation: fadeIn 1s ease-in;
     }
+
     header h1 {
       font-size: 2.5rem;
       margin: 0;
       animation: bounceIn 1.2s ease-in-out;
     }
+
     .slogan {
       font-size: 1.5rem;
       margin-top: 0.5rem;
@@ -31,14 +42,16 @@
       overflow: hidden;
       border-right: 3px solid white;
     }
+
     .form-container {
-      max-width: 400px;
+      max-width: 420px;
       margin: 2rem auto;
       padding: 2rem;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
+
     input, select, button {
       width: 100%;
       padding: 12px;
@@ -47,6 +60,29 @@
       border-radius: 10px;
       font-size: 1rem;
     }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      text-align: left;
+    }
+
+    .equipment-box {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .equipment-box label {
+      width: 48%;
+    }
+
+    .equipment-box input {
+      width: auto;
+      margin-right: 0.5rem;
+    }
+
     button {
       background-color: #fff;
       color: #e60023;
@@ -54,22 +90,32 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    button:hover {
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button:hover:enabled {
       background-color: #ffe0e6;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
     @keyframes bounceIn {
       0% { transform: scale(0.5); opacity: 0; }
       60% { transform: scale(1.2); }
       100% { transform: scale(1); opacity: 1; }
     }
+
     @keyframes typewriter {
       from { width: 0; }
       to { width: 100%; }
     }
+
     .tooltip {
       font-size: 0.75rem;
       margin-top: 0.5rem;
@@ -77,7 +123,7 @@
     }
   </style>
 </head>
-<body>
+<body onload="getLocation()">
   <header>
     <h1>PLAY-G</h1>
     <div class="slogan">Play. Rent. Return. Simple!</div>
@@ -85,33 +131,75 @@
 
   <div class="form-container">
     <h2>🔒 Unlock Your Game Gear!</h2>
-    <form>
-      <input type="text" name="name" placeholder="Your Name" required />
-      
-      <select name="equipment" multiple required>
-        <option value="bat">🏏 Bat</option>
-        <option value="ball">⚽ Ball</option>
-        <option value="badminton">🏸 Badminton</option>
-        <option value="football">🥅 Football</option>
+    <form onsubmit="submitToGoogleForm(event)">
+      <input type="text" id="name" placeholder="Your Name" required />
+
+      <div class="equipment-box">
+        <label><input type="checkbox" name="equipment" value="Bat" />🏏 Bat</label>
+        <label><input type="checkbox" name="equipment" value="Ball" />⚽ Ball</label>
+        <label><input type="checkbox" name="equipment" value="Badminton" />🏸 Badminton</label>
+        <label><input type="checkbox" name="equipment" value="Football" />🥅 Football</label>
+      </div>
+
+      <label for="duration">Select Rental Duration</label>
+      <select id="duration" onchange="toggleCustomDuration()" required>
+        <option value="">-- Choose Duration --</option>
+        <option value="30 mins">30 mins</option>
+        <option value="1 hour">1 hour</option>
+        <option value="2 hours">2 hours</option>
+        <option value="custom">Custom</option>
       </select>
 
-      <input type="tel" name="phone" placeholder="Phone (+91...)" required />
-      
-      <input type="email" id="email" name="email" placeholder="Email Address" required />
-      <button type="button" onclick="sendOTP()">Send OTP</button>
+      <div id="customDurationContainer" style="display:none;">
+        <input type="text" id="customDuration" placeholder="Enter duration (e.g., 45 mins)" />
+      </div>
 
-      <input type="text" id="otp" name="otp" placeholder="Enter OTP received via Email" required />
+      <input type="tel" id="phone" placeholder="Phone (+91...)" required />
+      <input type="email" id="email" placeholder="Email Address" required />
+      <button type="button" id="otpBtn" onclick="sendOTP()">Send OTP</button>
 
-      <input type="text" name="location" placeholder="Auto-detected 📍" readonly />
+      <input type="text" id="otp" placeholder="Enter OTP received via Email" required />
+      <input type="text" id="location" placeholder="Auto-detected 📍" readonly />
       <div class="tooltip">Your data is safe and used only for rental purposes.</div>
 
       <button type="submit">Proceed to Pay</button>
     </form>
   </div>
 
+  <!-- Hidden Google Form -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+  <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
+    <input name="entry.1782176706" id="g_name" />
+    <input name="entry.336447923" id="g_email" />
+    <input name="entry.316390838" id="g_phone" />
+    <input name="entry.1176328126" id="g_equipment" />
+    <input name="entry.1887718702" id="g_duration" />
+    <input name="entry.183706312" id="g_location" />
+    <input type="submit" />
+  </form>
+
   <script>
     function sendOTP() {
       const email = document.getElementById("email").value;
+      const otpBtn = document.getElementById("otpBtn");
+
+      if (!email) {
+        alert("Please enter your email.");
+        return;
+      }
+
+      otpBtn.disabled = true;
+      otpBtn.innerText = "OTP Sent (60s)";
+      let countdown = 60;
+      const interval = setInterval(() => {
+        countdown--;
+        otpBtn.innerText = `OTP Sent (${countdown}s)`;
+        if (countdown === 0) {
+          clearInterval(interval);
+          otpBtn.disabled = false;
+          otpBtn.innerText = "Send OTP";
+        }
+      }, 1000);
 
       fetch("https://playg-backend-qz6t.onrender.com/send-otp", {
         method: "POST",
@@ -125,6 +213,28 @@
         alert("Failed to send OTP. Please try again.");
       });
     }
-  </script>
-</body>
-</html>
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            document.getElementById("location").value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          },
+          () => {
+            document.getElementById("location").value = "Location access denied.";
+          }
+        );
+      } else {
+        document.getElementById("location").value = "Geolocation not supported.";
+      }
+    }
+
+    function toggleCustomDuration() {
+      const selected = document.getElementById("duration").value;
+      const customField = document.getElementById("customDurationContainer");
+      if (selected === "custom") {
+        customField.style.display = "block";
+      } else {
+        customField.style.display = "none";
+        document.get[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Ronnie434/30-days-of-React/tree/22142106cb46f717a1259f84227cc90ed7fe50cc/02_Day_Introduction_to_React%2F02_introduction_to_react.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
