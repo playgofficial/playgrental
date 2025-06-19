@@ -12,7 +12,6 @@
       background: linear-gradient(270deg, #ff6600, #ff2e00, #e60023, #ff6600);
       background-size: 600% 600%;
       animation: bgPulse 12s ease infinite;
-      overflow-x: hidden;
       color: white;
       text-align: center;
     }
@@ -67,22 +66,6 @@
       text-align: left;
     }
 
-    .equipment-box {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .equipment-box label {
-      width: 48%;
-    }
-
-    .equipment-box input {
-      width: auto;
-      margin-right: 0.5rem;
-    }
-
     button {
       background-color: #fff;
       color: #e60023;
@@ -134,12 +117,25 @@
     <form onsubmit="submitToGoogleForm(event)">
       <input type="text" id="name" placeholder="Your Name" required />
 
-      <div class="equipment-box">
-        <label><input type="checkbox" name="equipment" value="Bat" />🏏 Bat</label>
-        <label><input type="checkbox" name="equipment" value="Ball" />⚽ Ball</label>
-        <label><input type="checkbox" name="equipment" value="Badminton" />🏸 Badminton</label>
-        <label><input type="checkbox" name="equipment" value="Football" />🥅 Football</label>
-      </div>
+      <label for="equipment1">Equipment 1</label>
+      <select id="equipment1" required>
+        <option value="">-- Select --</option>
+        <option>Tennis Bat</option>
+        <option>Football</option>
+        <option>Leather Ball</option>
+        <option>Tennis Ball</option>
+        <option>Badminton Racket</option>
+      </select>
+
+      <label for="equipment2">Equipment 2</label>
+      <select id="equipment2">
+        <option value="">-- Select --</option>
+        <option>Tennis Bat</option>
+        <option>Football</option>
+        <option>Leather Ball</option>
+        <option>Tennis Ball</option>
+        <option>Badminton Racket</option>
+      </select>
 
       <label for="duration">Select Rental Duration</label>
       <select id="duration" onchange="toggleCustomDuration()" required>
@@ -166,7 +162,6 @@
     </form>
   </div>
 
-  <!-- Hidden Google Form -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
   <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
     <input name="entry.1782176706" id="g_name" />
@@ -179,14 +174,30 @@
   </form>
 
   <script>
+    function toggleCustomDuration() {
+      const selected = document.getElementById("duration").value;
+      const customField = document.getElementById("customDurationContainer");
+      customField.style.display = selected === "custom" ? "block" : "none";
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            document.getElementById("location").value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          },
+          () => {
+            document.getElementById("location").value = "Location access denied.";
+          }
+        );
+      }
+    }
+
     function sendOTP() {
       const email = document.getElementById("email").value;
       const otpBtn = document.getElementById("otpBtn");
-
-      if (!email) {
-        alert("Please enter your email.");
-        return;
-      }
+      if (!email) return alert("Please enter your email.");
 
       otpBtn.disabled = true;
       otpBtn.innerText = "OTP Sent (60s)";
@@ -208,33 +219,11 @@
       })
       .then(response => response.json())
       .then(data => alert(data.message))
-      .catch(error => {
-        console.error(error);
-        alert("Failed to send OTP. Please try again.");
-      });
+      .catch(() => alert("Failed to send OTP. Please try again."));
     }
 
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const { latitude, longitude } = pos.coords;
-            document.getElementById("location").value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-          },
-          () => {
-            document.getElementById("location").value = "Location access denied.";
-          }
-        );
-      } else {
-        document.getElementById("location").value = "Geolocation not supported.";
-      }
-    }
-
-    function toggleCustomDuration() {
-      const selected = document.getElementById("duration").value;
-      const customField = document.getElementById("customDurationContainer");
-      if (selected === "custom") {
-        customField.style.display = "block";
-      } else {
-        customField.style.display = "none";
-        document.get[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Ronnie434/30-days-of-React/tree/22142106cb46f717a1259f84227cc90ed7fe50cc/02_Day_Introduction_to_React%2F02_introduction_to_react.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
+    function submitToGoogleForm(event) {
+      event.preventDefault();
+      document.getElementById("g_name").value = document.getElementById("name").value;
+      document.getElementById("g_email").value = document.getElementById("email").value;
+      document.getElement[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/lzh-yi/Web-Fork-/tree/024b3e55587afdf9f05a677613a75f24e3d1803e/03-CSS%E8%BF%9B%E9%98%B6%2F04-%E5%A6%82%E4%BD%95%E8%AE%A9%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E5%B1%85%E4%B8%AD%EF%BC%9F.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
