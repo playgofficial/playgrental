@@ -101,7 +101,7 @@
 
   <div class="form-container">
     <h2>🔒 Unlock Your Game Gear!</h2>
-    <form onsubmit="submitToGoogleForm(event)">
+    <form onsubmit="submitToGoogleSheet(event)">
       <input type="text" id="name" placeholder="Your Name" required />
 
       <label for="equipment1">Equipment 1</label>
@@ -148,16 +148,6 @@
     </form>
   </div>
 
-  <!-- Hidden form for Google Form -->
-  <iframe name="hidden_iframe" style="display:none;"></iframe>
-  <form id="gform" action="https://docs.google.com/forms/d/e/1FAIpQLSfSv16jhwHWZuMr-NeX3fvyB-JbKKO674AY-O3I085IU49wog/formResponse" method="POST" target="hidden_iframe" style="display:none;">
-    <input name="entry.1308462483" id="g_name" />
-    <input name="entry.957154645" id="g_email" />
-    <input name="entry.805067854" id="g_phone" />
-    <input name="entry.1163401001" id="g_equipment" />
-    <input name="entry.1889959117" id="g_duration" />
-    <input type="submit" />
-  </form>
   <script>
     function toggleCustomDuration() {
       const selected = document.getElementById("duration").value;
@@ -218,24 +208,42 @@
       });
     }
 
-    function submitToGoogleForm(event) {
+    function submitToGoogleSheet(event) {
       event.preventDefault();
 
-      document.getElementById("g_name").value = document.getElementById("name").value;
-      document.getElementById("g_email").value = document.getElementById("email").value;
-      document.getElementById("g_phone").value = document.getElementById("phone").value;
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
 
       const eq1 = document.getElementById("equipment1").value;
       const eq2 = document.getElementById("equipment2").value;
-      document.getElementById("g_equipment").value = [eq1, eq2].filter(Boolean).join(", ");
+      const equipment = [eq1, eq2].filter(Boolean).join(", ");
 
       const dur = document.getElementById("duration").value;
       const custom = document.getElementById("customDuration").value;
-      document.getElementById("g_duration").value = dur === "custom" ? custom : dur;
+      const duration = dur === "custom" ? custom : dur;
 
-      document.getElementById("gform").submit();
+      const location = document.getElementById("location").value;
+
+      fetch("https://script.google.com/macros/s/AKfycbyzKkKXMeeuBXy7LnKaQfbDt2PuqiFk1V9zdEOwN6QGkypuy9vzUVhc9LFfKtMWakmj/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          equipment,
+          duration,
+          location
+        })
+      });
+
       alert("Submitted! Your rental request is on its way 🎯");
     }
   </script>
 </body>
 </html>
+
