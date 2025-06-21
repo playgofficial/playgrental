@@ -176,8 +176,8 @@
       event.preventDefault();
       const data = {
         name: document.getElementById("name").value,
-        "equipment 1": document.getElementById("equipment1").value,
-        "equipment 2": document.getElementById("equipment2").value,
+        equipment1: document.getElementById("equipment1").value,
+        equipment2: document.getElementById("equipment2").value,
         duration: document.getElementById("duration").value === "custom"
           ? document.getElementById("customDuration").value
           : document.getElementById("duration").value,
@@ -194,10 +194,11 @@
         body: JSON.stringify(data)
       });
 
-      alert("Submitted! Your rental is on the way 🚀");
+      alert("Submitted! Your request has been logged 🧾");
     }
   </script>
 </body>
 </html>
+
 
 
