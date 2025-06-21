@@ -26,25 +26,6 @@
       padding: 2rem 1rem;
     }
 
-    header h1 {
-      font-size: 2.5rem;
-      margin: 0;
-    }
-
-    .slogan {
-      font-size: 1.5rem;
-      margin-top: 0.5rem;
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 3px solid white;
-      animation: typewriter 3s steps(30) 1 normal both;
-    }
-
-    @keyframes typewriter {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-
     .form-container {
       max-width: 420px;
       margin: 2rem auto;
@@ -85,12 +66,6 @@
     button:hover:enabled {
       background-color: #ffe0e6;
     }
-
-    .tooltip {
-      font-size: 0.75rem;
-      margin-top: 0.5rem;
-      color: #ffcccc;
-    }
   </style>
 </head>
 <body onload="getLocation()">
@@ -101,9 +76,8 @@
 
   <div class="form-container">
     <h2>🔒 Unlock Your Game Gear!</h2>
-    <form onsubmit="submitToGoogleSheet(event)">
+    <form onsubmit="submitToSheet(event)">
       <input type="text" id="name" placeholder="Your Name" required />
-
       <label for="equipment1">Equipment 1</label>
       <select id="equipment1" required>
         <option value="">-- Select --</option>
@@ -113,7 +87,6 @@
         <option>Tennis Ball</option>
         <option>Badminton Racket</option>
       </select>
-
       <label for="equipment2">Equipment 2</label>
       <select id="equipment2">
         <option value="">-- Select --</option>
@@ -123,36 +96,30 @@
         <option>Tennis Ball</option>
         <option>Badminton Racket</option>
       </select>
-
-      <label for="duration">Select Rental Duration</label>
+      <label for="duration">Rental Duration</label>
       <select id="duration" onchange="toggleCustomDuration()" required>
-        <option value="">-- Choose Duration --</option>
+        <option value="">-- Choose --</option>
         <option value="30 mins">30 mins</option>
         <option value="1 hour">1 hour</option>
         <option value="2 hours">2 hours</option>
         <option value="custom">Custom</option>
       </select>
-
       <div id="customDurationContainer" style="display:none;">
-        <input type="text" id="customDuration" placeholder="Enter duration (e.g., 45 mins)" />
+        <input type="text" id="customDuration" placeholder="e.g., 45 mins" />
       </div>
-
       <input type="tel" id="phone" placeholder="Phone (+91...)" required />
       <input type="email" id="email" placeholder="Email Address" required />
       <button type="button" id="otpBtn" onclick="sendOTP()">Send OTP</button>
-      <input type="text" id="otp" placeholder="Enter OTP received via Email" required />
+      <input type="text" id="otp" placeholder="Enter OTP" required />
       <input type="text" id="location" placeholder="Auto-detected 📍" readonly />
-      <div class="tooltip">Your data is safe and used only for rental purposes.</div>
-
       <button type="submit">Proceed to Pay</button>
     </form>
   </div>
 
   <script>
     function toggleCustomDuration() {
-      const selected = document.getElementById("duration").value;
       document.getElementById("customDurationContainer").style.display =
-        selected === "custom" ? "block" : "none";
+        document.getElementById("duration").value === "custom" ? "block" : "none";
     }
 
     function getLocation() {
@@ -163,9 +130,8 @@
             document.getElementById("location").value =
               `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
           },
-          (error) => {
+          () => {
             document.getElementById("location").value = "Location access denied.";
-            console.warn("Geolocation error:", error.message);
           }
         );
       } else {
@@ -175,21 +141,19 @@
 
     function sendOTP() {
       const email = document.getElementById("email").value;
-      const otpBtn = document.getElementById("otpBtn");
+      const btn = document.getElementById("otpBtn");
+      if (!email) return alert("Enter email first.");
 
-      if (!email) return alert("Please enter your email first.");
-
-      otpBtn.disabled = true;
-      let seconds = 60;
-      otpBtn.innerText = `OTP Sent (${seconds}s)`;
-
+      btn.disabled = true;
+      let secs = 60;
+      btn.innerText = `OTP Sent (${secs}s)`;
       const timer = setInterval(() => {
-        seconds--;
-        otpBtn.innerText = `OTP Sent (${seconds}s)`;
-        if (seconds === 0) {
+        secs--;
+        btn.innerText = `OTP Sent (${secs}s)`;
+        if (secs === 0) {
           clearInterval(timer);
-          otpBtn.disabled = false;
-          otpBtn.innerText = "Send OTP";
+          btn.disabled = false;
+          btn.innerText = "Send OTP";
         }
       }, 1000);
 
@@ -201,49 +165,39 @@
       .then(res => res.json())
       .then(data => alert(data.message))
       .catch(() => {
-        alert("Failed to send OTP. Please try again.");
         clearInterval(timer);
-        otpBtn.disabled = false;
-        otpBtn.innerText = "Send OTP";
+        btn.disabled = false;
+        btn.innerText = "Send OTP";
+        alert("Failed to send OTP.");
       });
     }
 
-    function submitToGoogleSheet(event) {
+    function submitToSheet(event) {
       event.preventDefault();
-
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const phone = document.getElementById("phone").value;
-
-      const eq1 = document.getElementById("equipment1").value;
-      const eq2 = document.getElementById("equipment2").value;
-      const equipment = [eq1, eq2].filter(Boolean).join(", ");
-
-      const dur = document.getElementById("duration").value;
-      const custom = document.getElementById("customDuration").value;
-      const duration = dur === "custom" ? custom : dur;
-
-      const location = document.getElementById("location").value;
+      const data = {
+        name: document.getElementById("name").value,
+        "equipment 1": document.getElementById("equipment1").value,
+        "equipment 2": document.getElementById("equipment2").value,
+        duration: document.getElementById("duration").value === "custom"
+          ? document.getElementById("customDuration").value
+          : document.getElementById("duration").value,
+        phone: document.getElementById("phone").value,
+        email: document.getElementById("email").value,
+        otp: document.getElementById("otp").value,
+        location: document.getElementById("location").value
+      };
 
       fetch("https://script.google.com/macros/s/AKfycbyzKkKXMeeuBXy7LnKaQfbDt2PuqiFk1V9zdEOwN6QGkypuy9vzUVhc9LFfKtMWakmj/exec", {
         method: "POST",
         mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          equipment,
-          duration,
-          location
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
       });
 
-      alert("Submitted! Your rental request is on its way 🎯");
+      alert("Submitted! Your rental is on the way 🚀");
     }
   </script>
 </body>
 </html>
+
 
